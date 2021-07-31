@@ -1,5 +1,6 @@
 package com.example.greeting
 
+import android.content.Intent
 import android.media.MediaRecorder
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -55,6 +56,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         externalFileDir1 = externalCacheDir
         GreetingYou.putHolder(this)
+        findViewById<AppCompatTextView>(R.id.btn1)?.setOnClickListener {
+            startActivity(Intent(this, SecondActivity::class.java))
+            finish()
+        }
         findViewById<AppCompatTextView>(R.id.btn)?.setOnClickListener {
             stringBuilder.clear()
             mapOf(
@@ -83,6 +88,17 @@ class MainActivity : AppCompatActivity() {
                     findViewById<AppCompatTextView>(R.id.btn)?.text = stringBuilder.toString()
                 }
             )
+            //Please do not call the greeting method multiple times synchronously like the following, because it will be ignored
+            (android.Manifest.permission.WRITE_SETTINGS).greeting(
+                granted = {permission->
+                    Log.e("blue", "WRITE_SETTINGS granted")
+
+                },
+                denied = {permission->
+                    Log.e("blue", "WRITE_SETTINGS denied")
+                }
+            )
+
         }
         btnRecord = findViewById<AppCompatButton>(R.id.btn_record)
         btnRecord?.setOnClickListener {
