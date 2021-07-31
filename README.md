@@ -1,6 +1,8 @@
 # Greeting
 Use Kotlin's extension method to help handle Android permissions
-
+<br>
+<img src="https://i.loli.net/2021/07/31/G6p8UiFcZKwrgBe.png" width="303" height="480"/>
+<br>
 Usage:
 Call GreetingYou.putHolder(any:Any)  before using
 ```kotlin
