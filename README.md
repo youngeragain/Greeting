@@ -1,5 +1,6 @@
 # Greeting
 Use Kotlin's extension methods to help deal with Android runtime permissions and special permissions
+<br>
 使用 Kotlin 的扩展方法来帮助处理 Android 运行时权限和特殊权限
 <br>
 <img src="https://i.loli.net/2021/07/31/G6p8UiFcZKwrgBe.png" width="303" height="480"/>
