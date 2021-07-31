@@ -27,14 +27,5 @@ and then use extension methods or other methods, as shown below:
                     //your logic
                 }
             )
- 2:      
-  (android.Manifest.permission.WRITE_SETTINGS to "We need to modify the brightness").greeting(
-                granted = {permission->
-                    //your logic
-                },
-                denied = {permission->
-                    //your logic
-                }
-            )
- 3:more in GreetingYou.kt file
 ```
+more in GreetingYou.kt file
