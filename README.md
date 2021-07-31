@@ -13,7 +13,6 @@ GreetingYou.putHolder(this)
 and then use extension methods or other methods, as shown below:
 
 ```kotlin
-1:
   mapOf(
     android.Manifest.permission.WRITE_SETTINGS to "We need to modify the brightness",
     android.Manifest.permission.MANAGE_EXTERNAL_STORAGE to "Some files need to be placed in external storage space but cannot be placed in a specific location",
