@@ -6,6 +6,7 @@ Use Kotlin's extension methods to help deal with Android runtime permissions and
 <img src="https://i.loli.net/2021/07/31/G6p8UiFcZKwrgBe.png" width="303" height="480"/>
 <br>
 Usage:
+<br>
 Call GreetingYou.putHolder(any:Any)  before using
 ```kotlin
 GreetingYou.putHolder(this) 
