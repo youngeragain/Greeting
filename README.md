@@ -1,5 +1,5 @@
 # Greeting
-Use Kotlin's extension method to help handle Android permissions
+Use Kotlin's extension methods to help deal with Android runtime permissions and special permissions
 <br>
 <img src="https://i.loli.net/2021/07/31/G6p8UiFcZKwrgBe.png" width="303" height="480"/>
 <br>
