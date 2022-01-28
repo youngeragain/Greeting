@@ -89,7 +89,11 @@ class SpecialPermissionDialog(
             if(currentSpecialPermissionIndex>=0){
                 val intent = getIntent()
                 intent.action?.let {
-                    context.startActivity(intent)
+                    try{
+                        context.startActivity(intent)
+                    }catch(e:Exception){
+                        e.printStack()
+                    }
                 }
             }
         }
