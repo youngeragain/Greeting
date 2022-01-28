@@ -93,6 +93,7 @@ class SpecialPermissionDialog(
                         context.startActivity(intent)
                     }catch(e:Exception){
                         e.printStack()
+                        println("gretting")
                     }
                 }
             }
