@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<AppCompatTextView>(R.id.btn)?.setOnClickListener {
             stringBuilder.clear()
             mapOf(
-                android.Manifest.permission.WRITE_SETTINGS to "我们需要修改亮度",
+                android.Manifest.permission.WRITE_SETTINGS to "我们需要修改亮度123",
                 android.Manifest.permission.MANAGE_EXTERNAL_STORAGE to "有些文件需要放到外部存储空间但是又不能放到特定的位置",
                 android.Manifest.permission.SYSTEM_ALERT_WINDOW to "给您提供类似画中画的效果",
                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE to "I just want this permission!",
