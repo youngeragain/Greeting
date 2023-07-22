@@ -1,18 +1,15 @@
-package com.example.greeting
+package xcj.app.greeting.components
 
 import android.Manifest
-import android.os.*
-import android.provider.Settings
-import android.util.Log
+import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.core.os.EnvironmentCompat
 import androidx.fragment.app.Fragment
-import java.io.File
 
 typealias PermissionCallback = (
     permissions: Array<out String>,
     grantResults: IntArray
 )->Unit
+
 
 internal class EmptyPermissionFragment : Fragment(){
     internal var runtimePermissionCallback: PermissionCallback?=null
@@ -24,35 +21,36 @@ internal class EmptyPermissionFragment : Fragment(){
     override fun onResume() {
         super.onResume()
         specialPermissions?.let {
-            GreetingYou.updateSpecialPermissionIfNeeded()
-            GreetingYou.getCurrentSpecialPermissionShowPermissionIndex()?.let {currentShowingSpecialPermissionIndex->
+            Greeting.updateSpecialPermissionIfNeeded()
+            Greeting.getCurrentSpecialPermissionShowPermissionIndex()
+                ?.let { currentShowingSpecialPermissionIndex->
                 if(it.size>currentShowingSpecialPermissionIndex&&currentShowingSpecialPermissionIndex>=0){
-                    if(GreetingYou.canDrawOverlays&&
+                    if(Greeting.canDrawOverlays &&
                         it.contains(Manifest.permission.SYSTEM_ALERT_WINDOW)&&
                         it[currentShowingSpecialPermissionIndex] == Manifest.permission.SYSTEM_ALERT_WINDOW
                     ){
-                        GreetingYou.apply {
+                        Greeting.apply {
                             addGrantedSpecialPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)
                             currentSpecialPermissionShowPermissionIndexDecrement()
                             showNextSpecialPermission()
                         }
                     }
 
-                    if(GreetingYou.canWrite&&
+                    if(Greeting.canWrite &&
                         it.contains(Manifest.permission.WRITE_SETTINGS)&&
-                        it[currentShowingSpecialPermissionIndex]==Manifest.permission.WRITE_SETTINGS
+                        it[currentShowingSpecialPermissionIndex]== Manifest.permission.WRITE_SETTINGS
                     ){
-                        GreetingYou.apply {
+                        Greeting.apply {
                             addGrantedSpecialPermission(Manifest.permission.WRITE_SETTINGS)
                             currentSpecialPermissionShowPermissionIndexDecrement()
                             showNextSpecialPermission()
                         }
                     }
-                    if(GreetingYou.canManageExternalStorage&&
+                    if(Greeting.canManageExternalStorage &&
                         it.contains(Manifest.permission.MANAGE_EXTERNAL_STORAGE)&&
-                        it[currentShowingSpecialPermissionIndex]==Manifest.permission.MANAGE_EXTERNAL_STORAGE
+                        it[currentShowingSpecialPermissionIndex]== Manifest.permission.MANAGE_EXTERNAL_STORAGE
                     ){
-                        GreetingYou.apply {
+                        Greeting.apply {
                             addGrantedSpecialPermission(Manifest.permission.MANAGE_EXTERNAL_STORAGE)
                             currentSpecialPermissionShowPermissionIndexDecrement()
                             showNextSpecialPermission()

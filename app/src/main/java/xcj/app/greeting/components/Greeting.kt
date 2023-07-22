@@ -1,4 +1,4 @@
-package com.example.greeting
+package xcj.app.greeting.components
 
 import android.Manifest.permission.*
 import android.content.Context
@@ -12,12 +12,22 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
 import java.io.File
 import java.lang.ref.WeakReference
 
-object GreetingYou {
-    private val tag = "special_permission_fragment"
+object Greeting {
+
+
+    private class GreetingsLifecycleObserver:LifecycleObserver{
+        @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        fun cleanUp(){
+            clearSelf()
+        }
+        @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+        fun helper(owner:LifecycleOwner, event:Lifecycle.Event)=Unit
+    }
 
     /**
      * 危险权限, 需要到特定页面手动授予
@@ -42,8 +52,8 @@ object GreetingYou {
         WRITE_SETTINGS
     )
 
-    private lateinit var specialPermissionDialog:SpecialPermissionDialog
-    private lateinit var emptyPermissionFragment:EmptyPermissionFragment
+    private lateinit var specialPermissionDialog: SpecialPermissionDialog
+    private lateinit var emptyPermissionFragment: EmptyPermissionFragment
 
     private val deniedPermissions: MutableList<String> = mutableListOf()
     private val grantedPermissions: MutableList<String> = mutableListOf()
@@ -52,29 +62,31 @@ object GreetingYou {
     private var specialPermissions:List<String> = mutableListOf()
 
     private var mHandler: Handler?=null
-    private lateinit var ctx: WeakReference<Context>
+
+    private lateinit var context: WeakReference<Context>
 
     private var holder: Any? = null
-        private set(value) {
+        set(value) {
             if(value!=null){
                 mHandler = Handler(Looper.getMainLooper())
                 if (value is AppCompatActivity) {
-                    ctx = WeakReference(value)
+                    context = WeakReference(value)
                     field = value
                     addLifecycleOwnerObserver(value)
                 } else if (value is Fragment && value.requireContext() != null) {
-                    ctx = WeakReference(value.requireContext())
+                    context = WeakReference(value.requireContext())
                     field = value
                     addLifecycleOwnerObserver(value)
                 } else {
                     Log.e("blue", "current only support AppcompatActivity and Fragment")
                 }
-            }else{
-                field = value
             }
         }
+        get() {
+            return context.get()
+        }
 
-
+    private var callListGreetingTimes = 0
     internal var canDrawOverlays = false
     internal var canWrite = false
     internal var canManageExternalStorage = false
@@ -82,19 +94,13 @@ object GreetingYou {
     private var grantedCallback:((List<String>)->Unit)? = null
     private var deniedCallback:((List<String>)->Unit)? = null
 
-    private val sdcard0File:File? by lazy {
-        Environment.getExternalStorageDirectory()?.path?.let {
-            File(it)
-        }
-    }
-
-    fun putHolder(any: Any): GreetingYou {
+    private fun putHolder(any: Any): Greeting {
         holder = any
         return this
     }
 
     fun showNextSpecialPermission(){
-        if(!::specialPermissionDialog.isInitialized){
+        if(!Greeting::specialPermissionDialog.isInitialized){
             return
         }else{
             if(specialPermissionDialog.isShowing){
@@ -108,21 +114,21 @@ object GreetingYou {
     }
 
     private fun clearSelf() {
-        grantedCallback=null
+        grantedCallback =null
         deniedCallback = null
         grantedPermissions.clear()
         deniedPermissions.clear()
         holder = null
-        ctx.clear()
+        context.clear()
         mHandler = null
         callListGreetingTimes = 0
-        if (::specialPermissionDialog.isInitialized) {
+        if (Greeting::specialPermissionDialog.isInitialized) {
             if(specialPermissionDialog.isShowing){
                 specialPermissionDialog.setOnDismissListener(null)
                 specialPermissionDialog.dismiss()
             }
         }
-        if(::emptyPermissionFragment.isInitialized){
+        if(Greeting::emptyPermissionFragment.isInitialized){
             if(emptyPermissionFragment.isAdded){
                 removeEmptyFragment()
             }
@@ -149,7 +155,7 @@ object GreetingYou {
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun showSpecialPermissionDialog(specialPermissions: List<String>, reasons: Map<String, String?>){
-        ctx.get()?.let {context->
+        context.get()?.let { context->
             //过滤掉已经拥有的特殊权限
             val list = specialPermissions.toMutableList()
             updateSpecialPermissionIfNeeded()
@@ -181,7 +187,7 @@ object GreetingYou {
                 dispatchRequestCallback()
             }else{
                 emptyPermissionFragment.specialPermissions = list
-                specialPermissionDialog= SpecialPermissionDialog(context, list, reasons).apply {
+                specialPermissionDialog = SpecialPermissionDialog(context, list, reasons).apply {
                     setOnDismissListener { //消失的时候
                         dispatchRequestCallback()
                     }
@@ -191,36 +197,7 @@ object GreetingYou {
         }
     }
 
-    private fun MutableList<String>.removeItem(item:String){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            this.removeIf {
-                if(it== item){
-                    addGrantedSpecialPermission(it)
-                    true
-                }else{
-                    false
-                }
-            }
-        }else{
-            for(specialPermission in this){
-                if(specialPermission == item){
-                    addGrantedSpecialPermission(specialPermission)
-                    this.remove(specialPermission)
-                    break
-                }
-            }
-        }
-    }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    @JvmName("GreetingYou_greeting")
-    fun greeting(
-        map: Map<String, String>,
-        granted: (List<String>) -> Unit,
-        denied: (List<String>) -> Unit
-    ) {
-        map.greeting(granted, denied)
-    }
 
     private fun getBoolean(permissionName: String):Boolean {
         return run{
@@ -233,19 +210,21 @@ object GreetingYou {
     }
 
     private fun removeEmptyFragment(){
-        val activity = (holder as? AppCompatActivity) ?: ((holder as? Fragment)?.requireActivity())
-        activity?.supportFragmentManager?.let {fm->
-            fm.beginTransaction()
-                .remove(emptyPermissionFragment)
-                .commit()
-        }
+        getActivity()?.supportFragmentManager
+            ?.beginTransaction()
+            ?.remove(emptyPermissionFragment)
+            ?.commit()
+    }
+
+    private fun getActivity(): FragmentActivity? {
+        return (holder as? AppCompatActivity) ?: ((holder as? Fragment)?.requireActivity())
     }
 
     private fun resolveRuntimePermissions(
         runtimePermissions: List<String>,
         reasons: Map<String, String?>? = null,
         then:((then:(()->Unit)?)->Unit)?=null) {
-        runtimePermissions?.let {
+        runtimePermissions.let {
             emptyPermissionFragment.runtimePermissions = it
             emptyPermissionFragment.runtimePermissionCallback = { permissions, results ->
                 for (i in permissions.indices) {
@@ -280,7 +259,7 @@ object GreetingYou {
     }
 
     fun getCurrentSpecialPermissionShowPermissionIndex():Int? {
-        return if(!::specialPermissionDialog.isInitialized){
+        return if(!Greeting::specialPermissionDialog.isInitialized){
             null
         }else{
             if(!specialPermissionDialog.isShowing){
@@ -292,7 +271,7 @@ object GreetingYou {
     }
 
     fun currentSpecialPermissionShowPermissionIndexDecrement() {
-        if(!::specialPermissionDialog.isInitialized){
+        if(!Greeting::specialPermissionDialog.isInitialized){
             return
         }else{
             if(!specialPermissionDialog.isShowing){
@@ -305,40 +284,70 @@ object GreetingYou {
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun updateSpecialPermissionIfNeeded() {
-        if(!::ctx.isInitialized)
+        if(!Greeting::context.isInitialized)
             return
-        if(ctx.get()==null){
+        if(context.get()==null){
             return
         }
-        canDrawOverlays = Settings.canDrawOverlays(ctx.get())
-        canWrite = Settings.System.canWrite(ctx.get())
+        canDrawOverlays = Settings.canDrawOverlays(context.get())
+        canWrite = Settings.System.canWrite(context.get())
         //只有android 10之后才会为null, 如果开发者最高适配了安卓10，并且Manifests.xml里面请求了legacy storage,这里不会为null
-        canManageExternalStorage = sdcard0File !=null&&(sdcard0File?.canWrite())?:false
+        val tempFile = Environment.getExternalStorageDirectory()?.path?.let {
+            File(it)
+        }
+        canManageExternalStorage = tempFile !=null&& (tempFile.canWrite())
+        if(canManageExternalStorage){
+            tempFile?.delete()
+        }
     }
 
-    private class GreetingsLifecycleObserver:LifecycleObserver{
-        @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-        fun cleanUp(){
-            GreetingYou.clearSelf()
+    private fun MutableList<String>.removeItem(item:String){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            this.removeIf {
+                if(it== item){
+                    addGrantedSpecialPermission(it)
+                    true
+                }else{
+                    false
+                }
+            }
+        }else{
+            for(specialPermission in this){
+                if(specialPermission == item){
+                    addGrantedSpecialPermission(specialPermission)
+                    this.remove(specialPermission)
+                    break
+                }
+            }
         }
-        @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
-        fun helper(a:LifecycleOwner, b:Lifecycle.Event)=Unit
     }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    @JvmName("GreetingYou_greeting")
+    fun greeting(
+        context: Context,
+        map: Map<String, String>,
+        granted: (List<String>) -> Unit,
+        denied: (List<String>) -> Unit
+    ) = map.greeting(context, granted, denied)
+
+
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun Map<String, String?>.greeting(
+        context: Context,
         granted: ((List<String>) -> Unit)? = null,
         denied: ((List<String>) -> Unit)? = null
-    ) {
-        holder ?: return
-        this.entries.map { it.key }.greeting(this, granted, denied)
-    }
+    ) = entries.map { it.key }.greeting(context,this, granted, denied)
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun Pair<String, String?>.greeting(
+        context: Context,
         granted: ((String?) -> Unit)? = null,
-        denied: ((String?) -> Unit)? = null){
-        mapOf<String, String?>(this).greeting({
+        denied: ((String?) -> Unit)? = null
+    ) = mapOf<String, String?>(this).greeting(
+        context,
+        {
             if(!it.isNullOrEmpty()){
                 if(it.size==1){
                     granted?.invoke(it[0])
@@ -347,7 +356,8 @@ object GreetingYou {
                 }
             }
 
-        },{
+        },
+        {
             if(!it.isNullOrEmpty()){
                 if(it.size==1){
                     denied?.invoke(it[0])
@@ -356,39 +366,42 @@ object GreetingYou {
                 }
             }
         })
-    }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    fun String.greeting(granted: ((String?) -> Unit)? = null,
-                        denied: ((String?) -> Unit)? = null){
-        (this to null).greeting(granted, denied)
-    }
-    var callListGreetingTimes = 0
+    fun String.greeting(context: Context, granted: ((String?) -> Unit)? = null,
+                        denied: ((String?) -> Unit)? = null) =
+        (this to null).greeting(context, granted, denied)
+
+    /**
+     * real entry point
+     */
+
     @RequiresApi(Build.VERSION_CODES.M)
     @Synchronized fun List<String>.greeting(
+        context: Context,
         reasons: Map<String, String?>,
         granted: ((List<String>) -> Unit)? = null,
         denied: ((List<String>) -> Unit)? = null
     ) {
-        holder ?: return
-        if(++callListGreetingTimes>1){
+        if(++callListGreetingTimes >1){
             callListGreetingTimes = 1
             Log.e("blue", "Please do not call the greeting method multiple times synchronously!")
             return
         }
+        putHolder(context)
+        val activity = getActivity() ?:return
         grantedCallback = granted
         deniedCallback = denied
-        val activity = (holder as? AppCompatActivity) ?: ((holder as? Fragment)?.requireActivity())
-        if(!::emptyPermissionFragment.isInitialized){
+
+        if(!Greeting::emptyPermissionFragment.isInitialized){
             emptyPermissionFragment = EmptyPermissionFragment()
         }
-
         if(!emptyPermissionFragment.isAdded){
-            activity?.supportFragmentManager?.let { fm ->
-                fm.beginTransaction()
-                    .add(emptyPermissionFragment, tag)
-                    .commit()
-            }
+            activity
+                .supportFragmentManager
+                .beginTransaction()
+                .add(emptyPermissionFragment, "special_permission_fragment")
+                .commit()
         }
         grantedPermissions.clear()
         deniedPermissions.clear()

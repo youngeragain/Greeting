@@ -3,9 +3,10 @@
     <string name="app_name">Greeting</string>
     <string name="to_grant">去授权</string>
     <string name="deny">拒绝</string>
-    <string name="allow_app_to_modify_the_system_settings">允许 %s 修改系统设置吗？</string>
+    <string name="allow_app_to_modify_the_system_settings">允许 %s 修改系统设置？</string>
     <string name="allow_app_to_display_the_overlay">允许应用程序 %s 显示叠加层？</string>
     <string name="allow_app_to_manage_external_storage">允许应用 %s 管理外部存储？</string>
-    <string name="allow_app_to_open_a_game">允许应用程序 %s 打开游戏吗？</string>
+    <string name="allow_app_to_open_a_game">允许应用程序 %s 打开游戏？</string>
     <string name="the_developer_did_not_provide_a_reason_for_use">开发者未提供使用原因</string>
+    <string name="allow">允许</string>
 </resources>

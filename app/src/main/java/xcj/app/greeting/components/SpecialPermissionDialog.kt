@@ -1,27 +1,19 @@
-package com.example.greeting
+package xcj.app.greeting.components
 
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
-import android.text.SpannableStringBuilder
-import android.util.Log
-import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.text.bold
-import androidx.core.text.color
-import androidx.fragment.app.Fragment
-import com.example.greeting.databinding.DialogSpecialPermissionBinding
+import com.example.greeting.R
 
 class SpecialPermissionDialog(
     ctx:Context,
@@ -46,6 +38,8 @@ class SpecialPermissionDialog(
     private var currentSpecialPermissionIndex:Int = specialPermissions.lastIndex
 
     private val appName: String by lazy { getAppName1() }
+
+    private var isFirst = true
 
     private fun getAppName1(): String {
         val unknownApplicationName = "Unknown application"
@@ -112,6 +106,7 @@ class SpecialPermissionDialog(
         }
     }
 
+
     fun showNextPermission(){
         showNextPermissionInternal()
     }
@@ -122,19 +117,25 @@ class SpecialPermissionDialog(
 
 
     private fun showNextPermissionInternal() {
-        if(showAnimation){
-            icon.animate().rotationY(-20f).alpha(0f).setDuration(250).withEndAction {
+        if(showAnimation&&!isFirst){
+            val endRunnable = {
                 icon.translationY = 20f
-                icon.animate().translationY(0f).alpha(1f).setDuration(250).start()
-            }.start()
-            llTipsContainer.animate().translationY(-20f).alpha(0f).setDuration(250).withEndAction {
                 llTipsContainer.translationY = 20f
+                val ani = icon.animate().translationY(0f).alpha(1f).setDuration(250)
+                val ani2 = llTipsContainer.animate().translationY(0f).alpha(1f).setDuration(250)
+                ani.start()
+                ani2.start()
                 updateUI()
-                llTipsContainer.animate().translationY(0f).alpha(1f).setDuration(250).start()
-            }.start()
+            }
+            val animator = icon.animate().rotationY(-20f).alpha(0f).setDuration(250)
+            val animator1 = llTipsContainer.animate().translationY(-20f).alpha(0f).setDuration(250).withEndAction(endRunnable)
+            animator.start()
+            animator1.start()
         }else{
             updateUI()
         }
+        if(isFirst)
+            isFirst = false
     }
 
     private fun getReason1():String {
@@ -185,16 +186,20 @@ class SpecialPermissionDialog(
     private fun getIcon():Drawable? {
         return when (specialPermissions[currentSpecialPermissionIndex]) {
             Manifest.permission.WRITE_SETTINGS -> {
-                ResourcesCompat.getDrawable(context.resources, R.drawable.ic_outline_settings_24, context.theme)
+                ResourcesCompat.getDrawable(context.resources,
+                    R.drawable.ic_outline_settings_24, context.theme)
             }
             Manifest.permission.SYSTEM_ALERT_WINDOW -> {
-                ResourcesCompat.getDrawable(context.resources, R.drawable.ic_baseline_layers_24, context.theme)
+                ResourcesCompat.getDrawable(context.resources,
+                    R.drawable.ic_baseline_layers_24, context.theme)
             }
             Manifest.permission.MANAGE_EXTERNAL_STORAGE -> {
-                ResourcesCompat.getDrawable(context.resources, R.drawable.ic_baseline_sd_storage_24, context.theme)
+                ResourcesCompat.getDrawable(context.resources,
+                    R.drawable.ic_baseline_sd_storage_24, context.theme)
             }
             else -> {
-                ResourcesCompat.getDrawable(context.resources, R.drawable.ic_baseline_toys_24, context.theme)
+                ResourcesCompat.getDrawable(context.resources,
+                    R.drawable.ic_baseline_toys_24, context.theme)
             }
         }
     }

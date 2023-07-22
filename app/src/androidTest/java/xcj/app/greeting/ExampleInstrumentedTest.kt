@@ -1,4 +1,4 @@
-package com.example.greeting
+package xcj.app.greeting
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

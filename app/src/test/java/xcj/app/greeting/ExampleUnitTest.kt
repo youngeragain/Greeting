@@ -1,4 +1,4 @@
-package com.example.greeting
+package xcj.app.greeting
 
 import org.junit.Test
 

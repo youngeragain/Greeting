@@ -7,27 +7,21 @@ Use Kotlin's extension methods to help deal with Android runtime permissions and
 <br>
 Usage:
 <br>
-Call GreetingYou.putHolder(any:Any)  before using
-```kotlin
-GreetingYou.putHolder(this) 
-```
-and then use extension methods or other methods, as shown below:
-
+Use extension methods or other methods, as shown below:
 ```kotlin
   mapOf(
     android.Manifest.permission.WRITE_SETTINGS to "We need to modify the brightness",
     android.Manifest.permission.MANAGE_EXTERNAL_STORAGE to "Some files need to be placed in external storage space but cannot be placed in a specific location",
     android.Manifest.permission.SYSTEM_ALERT_WINDOW to "Provide you with a picture-in-picture effect",
-    android.Manifest.permission.WRITE_EXTERNAL_STORAGE to "I just want this permission!",
-    android.Manifest.permission.READ_EXTERNAL_STORAGE to "I just want this permission!",
-    android.Manifest.permission.RECORD_AUDIO to "I just want this permission!"
-  ).greeting(
-                granted = {permissions->
-                    //your logic
-                },
-                denied = {permissions->
-                    //your logic
-                }
-            )
+    android.Manifest.permission.WRITE_EXTERNAL_STORAGE to "Reason",
+    android.Manifest.permission.READ_EXTERNAL_STORAGE to "Reason",
+    android.Manifest.permission.RECORD_AUDIO to "Reason"
+  ).greeting(context = any,
+    granted = { permissions->
+        
+    },
+    denied = { permissions->
+        
+    })
 ```
-more in GreetingYou.kt file
+more in Greeting.kt file
